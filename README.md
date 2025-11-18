@@ -64,10 +64,8 @@ npm run dev   # if using nodemon
 
 ## 👥 Team Members
 
-- Mitch → Backend  
-- George → Backend  
+- Mitch → Backend   
 - Stone → Frontend  
-- Feige → Frontend  
 - Xianyang → Frontend
   
 ---

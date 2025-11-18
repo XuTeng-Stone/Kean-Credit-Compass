@@ -99,7 +99,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
   
-  /* Responsive Design */
   @media (min-width: 768px) {
     .title {
       font-size: 40px;
@@ -131,6 +130,6 @@
     font-weight: 600;
     color: #1E3A8A;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin-top: 0.75rem; /* Add space between button and tag */
+    margin-top: 0.75rem; 
   }
   

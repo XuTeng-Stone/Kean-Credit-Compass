@@ -5,41 +5,20 @@ import '../styles/LandingPage.css';
 function LandingPage() {
   const navigate = useNavigate();
 
-  // Simulate auth status (replace with real logic later)
-  const isAuthenticated = false;
-
-  const handleStartLearning = () => {
-    if (isAuthenticated) {
-      navigate("/chat");
-    } else {
-      navigate("/signin");
-    }
-  };
-
   return (
     <div className="landing-container">
-      {/* Navigation */}
-      <nav className="navbar">
-        <Link to="/">Home</Link>
-        <Link to="/features">Features</Link>
-        <Link to="/signin">Sign In</Link>
-      </nav>
-
-      {/* Logo Section */}
       <div className="logo-section">
         <img src="/logo.png" alt="AI Study Assistant" className="logo-img" />
       </div>
 
-      {/* Hero Section */}
       <h2 className="subtitle">Welcome to</h2>
       <h1 className="title">Kean-Credit-Compass</h1>
 
-      {/* Start Section */}
       <div className="start-section">
-        <button className="start-btn" onClick={handleStartLearning}>
-          Start Learning
+        <button className="start-btn" onClick={() => navigate("/upload")}>
+          Start Checking
         </button>
-        <div className="topic-tag">Created by ...</div>
+        <div className="topic-tag">Made by ...</div>
       </div>
     </div>
   );

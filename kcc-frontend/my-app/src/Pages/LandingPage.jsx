@@ -8,7 +8,7 @@ function LandingPage() {
   return (
     <div className="landing-container">
       <div className="logo-section">
-        <img src="/logo.png" alt="AI Study Assistant" className="logo-img" />
+        <img src="/logo.png" alt="Kean Credit Compass Logo" className="logo-img" />
       </div>
 
       <h2 className="subtitle">Welcome to</h2>

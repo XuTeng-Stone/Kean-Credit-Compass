@@ -137,6 +137,39 @@ Builds the app for production to the `build` folder.
 
 ---
 
+## Developer Guidelines
+
+### Testing
+
+This project uses Jest and React Testing Library.
+
+Test files should be placed in the same directory as the component and named `ComponentName.test.js`.
+
+Run tests:
+```bash
+npm test                          # Watch mode
+npm test -- --coverage            # With coverage
+npm test -- --watchAll=false      # Single run
+```
+
+Basic test example:
+```javascript
+import { render, screen } from '@testing-library/react';
+import ComponentName from './ComponentName';
+
+test('should render correctly', () => {
+  render(<ComponentName />);
+  expect(screen.getByText('Expected Text')).toBeInTheDocument();
+});
+```
+
+Guidelines:
+- Test user-facing behavior, not implementation
+- Maintain 70%+ code coverage for new features
+- Run tests before committing
+
+---
+
 ## Deployment
 
 ### Frontend Deployment (Netlify)
@@ -249,6 +282,34 @@ npm run deploy
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+---
+
+## Bug Reporting
+
+Open an issue on GitHub with title format: `[BUG] Brief description`
+
+Include:
+1. Steps to reproduce
+2. Expected vs actual behavior
+3. Browser, OS, and environment details
+4. Screenshots or error messages
+5. Sample CSV file if relevant
+
+Example:
+```
+[BUG] CSV validation fails for valid file
+
+Steps:
+1. Select Computer Science major
+2. Upload valid CSV with 5 courses
+3. Validation shows "Invalid file format" error
+
+Expected: File validates successfully
+Actual: Validation error displayed
+
+Environment: Chrome 120, Windows 11, localhost:3000
+```
 
 ---
 

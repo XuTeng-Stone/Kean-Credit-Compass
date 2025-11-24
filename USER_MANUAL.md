@@ -111,10 +111,51 @@ A sample CSV file is available for download on the Course Upload page. Use it as
 - Use "Re-upload CSV" to update your data
 - Use "Back to Dashboard" to return to the home page
 
+## Troubleshooting
+
+**"Invalid file type" error**
+- Ensure file has .csv extension, not .xlsx
+
+**"Missing required header" error**
+- Verify CSV has all columns: Course Code, Course Name, Credits, Grade, Semester
+- Check for typos in column names
+
+**"Grade is not valid" error**
+- Use only: A, A-, B+, B, B-, C+, C, C-, D, F
+
+**"Credits must be a number between 0 and 6" error**
+- Ensure all credit values are numeric and between 0-6
+
+**File upload fails or freezes**
+- Check file size (max 5MB)
+- Try Chrome or Firefox
+- Clear cache and reload
+
+**Cannot see uploaded data**
+- Select a major before uploading
+- Verify CSV contains data rows
+
+**Progress shows incorrectly**
+- Check Credits values in CSV
+- System requires 120 total credits
+
 ## Notes
 
 - All fields in the CSV file are required and cannot be empty
 - The application assumes 120 total credits are required for graduation
 - Progress is calculated based on completed credits versus total required credits
 - You can upload a new CSV file at any time to update your progress
+
+## Reporting Issues
+
+To report bugs or suggest features, open an issue on GitHub.
+
+Include:
+- Problem description
+- Steps to reproduce
+- Browser and OS
+- Screenshot if helpful
+- Sample CSV (remove personal info)
+
+Example: "Uploading CSV with 10 courses shows 0% completion on progress page. Chrome 120, Windows 11. No error messages."
 

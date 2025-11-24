@@ -135,4 +135,3 @@ function DegreeProgress() {
 }
 
 export default DegreeProgress;
-

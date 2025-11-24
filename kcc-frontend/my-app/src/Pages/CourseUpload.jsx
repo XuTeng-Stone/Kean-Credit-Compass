@@ -385,4 +385,3 @@ function CourseUpload() {
 }
 
 export default CourseUpload;
-

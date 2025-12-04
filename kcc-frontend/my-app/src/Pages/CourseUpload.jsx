@@ -79,141 +79,94 @@ function CourseUpload() {
   };
 
   const validateSchema = (headers) => {
-    const requiredHeaders = ['Course Code', 'Course Name', 'Credits', 'Grade', 'Semester'];
-    const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
+    const required = ['Course Code', 'Course Name', 'Credits', 'Grade', 'Semester'];
+    const normalized = headers.map(h => h.toLowerCase().trim());
 
-    for (let required of requiredHeaders) {
-      if (!normalizedHeaders.includes(required.toLowerCase())) {
-        return {
-          valid: false,
-          message: `Missing required header: ${required}`
-        };
+    for (let col of required) {
+      if (!normalized.includes(col.toLowerCase())) {
+        return { valid: false, message: `Missing column: ${col}` };
       }
     }
-
     return { valid: true };
   };
 
   const validateData = (rows) => {
-    const errorList = [];
-
-    rows.forEach((row, index) => {
-      const rowNumber = index + 2;
-
-      if (!row['Course Code'] || row['Course Code'].trim() === '') {
-        errorList.push(`Row ${rowNumber}: Course Code is empty`);
+    const errors = [];
+    rows.forEach((row, i) => {
+      const n = i + 2;
+      if (!row['Course Code']?.trim()) errors.push(`Row ${n}: Missing course code`);
+      if (!row['Course Name']?.trim()) errors.push(`Row ${n}: Missing course name`);
+      
+      const credits = parseFloat(row['Credits']);
+      if (!row['Credits']?.trim()) {
+        errors.push(`Row ${n}: Missing credits`);
+      } else if (isNaN(credits) || credits < 0 || credits > 6) {
+        errors.push(`Row ${n}: Invalid credits (must be 0-6)`);
       }
 
-      if (!row['Course Name'] || row['Course Name'].trim() === '') {
-        errorList.push(`Row ${rowNumber}: Course Name is empty`);
+      if (!row['Grade']?.trim()) {
+        errors.push(`Row ${n}: Missing grade`);
+      } else if (!validGrades.includes(row['Grade'].toUpperCase())) {
+        errors.push(`Row ${n}: Invalid grade "${row['Grade']}"`);
       }
 
-      if (!row['Credits'] || row['Credits'].trim() === '') {
-        errorList.push(`Row ${rowNumber}: Credits is empty`);
-      } else {
-        const credits = parseFloat(row['Credits']);
-        if (isNaN(credits) || credits < 0 || credits > 6) {
-          errorList.push(`Row ${rowNumber}: Credits must be a number between 0 and 6`);
-        }
-      }
-
-      if (!row['Grade'] || row['Grade'].trim() === '') {
-        errorList.push(`Row ${rowNumber}: Grade is empty`);
-      } else {
-        if (!validGrades.includes(row['Grade'].toUpperCase())) {
-          errorList.push(`Row ${rowNumber}: Grade "${row['Grade']}" is not valid. Must be one of: ${validGrades.join(', ')}`);
-        }
-      }
-
-      if (!row['Semester'] || row['Semester'].trim() === '') {
-        errorList.push(`Row ${rowNumber}: Semester is empty`);
-      }
+      if (!row['Semester']?.trim()) errors.push(`Row ${n}: Missing semester`);
     });
-
-    return errorList;
+    return errors;
   };
 
-  const handleFileSelect = async (selectedFile) => {
+  const handleFileSelect = async (f) => {
     setErrors([]);
     setValidationResult(null);
     setCsvData([]);
 
     if (!selectedMajor) {
       setMajorError(true);
-      setValidationResult({
-        success: false,
-        message: 'Please select a major before uploading a file.'
-      });
+      setValidationResult({ success: false, message: 'Select a major first' });
       return;
     }
 
-    const fileCheck = checkFile(selectedFile);
-    if (!fileCheck.validType) {
-      setValidationResult({
-        success: false,
-        message: 'Invalid file type. Please upload a CSV file.'
-      });
+    const check = checkFile(f);
+    if (!check.validType) {
+      setValidationResult({ success: false, message: 'Invalid file type. Use CSV' });
       return;
     }
 
-    if (!fileCheck.validSize) {
-      setValidationResult({
-        success: false,
-        message: 'File size exceeds 5MB limit.'
-      });
+    if (!check.validSize) {
+      setValidationResult({ success: false, message: 'File too large (max 5MB)' });
       return;
     }
 
-    setFile(selectedFile);
+    setFile(f);
 
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const text = e.target.result;
-        
-        const { headers, rows } = parseCSV(text);
+        const { headers, rows } = parseCSV(e.target.result);
 
-        const schemaValidation = validateSchema(headers);
-        if (!schemaValidation.valid) {
-          setValidationResult({
-            success: false,
-            message: schemaValidation.message
-          });
+        const schema = validateSchema(headers);
+        if (!schema.valid) {
+          setValidationResult({ success: false, message: schema.message });
           return;
         }
 
-        const dataErrors = validateData(rows);
-        if (dataErrors.length > 0) {
-          setErrors(dataErrors);
-          setValidationResult({
-            success: false,
-            message: `Found ${dataErrors.length} validation error(s) in the CSV file.`
-          });
+        const errs = validateData(rows);
+        if (errs.length > 0) {
+          setErrors(errs);
+          setValidationResult({ success: false, message: `${errs.length} error(s) found` });
           return;
         }
 
         setCsvData(rows);
-        setValidationResult({
-          success: true,
-          message: `File validated successfully! Found ${rows.length} course(s).`
-        });
+        setValidationResult({ success: true, message: `${rows.length} courses loaded` });
 
       } catch (error) {
-        setValidationResult({
-          success: false,
-          message: 'Error reading file. Please ensure it is a valid UTF-8 encoded CSV file.'
-        });
+        setValidationResult({ success: false, message: 'CSV read error' });
       }
     };
 
-    reader.onerror = () => {
-      setValidationResult({
-        success: false,
-        message: 'Error reading file. Please ensure it is a valid UTF-8 encoded CSV file.'
-      });
-    };
-
-    reader.readAsText(selectedFile, 'UTF-8');
+    reader.onerror = () => setValidationResult({ success: false, message: 'CSV read error' });
+    reader.readAsText(f, 'UTF-8');
   };
 
   const resetForm = () => {
@@ -234,39 +187,35 @@ function CourseUpload() {
   return (
     <div className="upload-container">
       <div className="upload-content">
-        <Link to="/" className="back-home-btn">Back to Home</Link>
+        <Link to="/" className="back-home-btn">Back</Link>
         <h1 className="upload-title">Course Credit Checker</h1>
-        <p className="upload-subtitle">Upload your completed courses to check your progress</p>
+        <p className="upload-subtitle">Upload your courses to check progress</p>
 
         <div className="csv-info-card">
-          <h3 className="csv-info-title">CSV File Format Requirements</h3>
+          <h3 className="csv-info-title">CSV Format</h3>
           <div className="csv-requirements">
             <div className="csv-requirement">
-              <strong>Required Columns:</strong>
+              <strong>Columns:</strong>
               <span>Course Code, Course Name, Credits, Grade, Semester</span>
             </div>
             <div className="csv-requirement">
-              <strong>Valid Grades:</strong>
+              <strong>Grades:</strong>
               <span>A, A-, B+, B, B-, C+, C, C-, D, F</span>
             </div>
             <div className="csv-requirement">
-              <strong>Credits Range:</strong>
-              <span>0 - 6</span>
-            </div>
-            <div className="csv-requirement">
-              <strong>File Size Limit:</strong>
-              <span>Maximum 5MB</span>
+              <strong>Credits:</strong>
+              <span>0-6</span>
             </div>
           </div>
           <div className="csv-example">
-            <strong>Example Format:</strong>
+            <strong>Example:</strong>
             <code>
               Course Code,Course Name,Credits,Grade,Semester<br/>
               CPS 1231,Computer Programming I,4,A,Fall 2023
             </code>
           </div>
           <a href="/sample-courses.csv" download className="download-sample">
-            Download Sample CSV
+            Download Sample
           </a>
         </div>
 
@@ -309,10 +258,9 @@ function CourseUpload() {
           <label htmlFor="file-input" className="upload-label">
             <div className="upload-icon">📄</div>
             <p className="upload-text">
-              {file ? file.name : 'Drag and drop your CSV file here'}
+              {file ? file.name : 'Drop CSV here or click to browse'}
             </p>
-            <p className="upload-subtext">or click to browse</p>
-            <p className="upload-hint">Maximum file size: 5MB</p>
+            <p className="upload-hint">Max 5MB</p>
           </label>
         </div>
 
@@ -363,20 +311,20 @@ function CourseUpload() {
           </div>
         )}
 
-        {validationResult && validationResult.success && csvData.length > 0 && (
+        {validationResult?.success && csvData.length > 0 && (
           <div className="action-buttons-group">
             <button className="view-result-button" onClick={viewResult}>
               View Result
             </button>
             <button className="reset-button" onClick={resetForm}>
-              Upload Another File
+              Try Another
             </button>
           </div>
         )}
 
         {validationResult && !validationResult.success && (
           <button className="reset-button" onClick={resetForm}>
-            Upload Another File
+            Try Again
           </button>
         )}
       </div>

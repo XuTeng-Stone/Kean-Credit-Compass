@@ -1,7 +1,11 @@
 Course Code,Course Name,Credits,Grade,Semester
-CPS 1231,Computer Programming I,4,A,Fall 2023
-CPS 2231,Computer Programming II,4,B+,Spring 2024
-CPS 3410,Data Structures and Algorithms,4,A-,Fall 2024
-MATH 1510,Calculus I,4,B,Fall 2023
-ENG 1030,Writing Composition,3,A,Spring 2024
-
+CPS 1231,Fundamentals of Computer Science,4,A,Fall 2022
+HIST 1062,Worlds of History,3,B+,Fall 2022
+ENG 1030,Composition,3,A,Spring 2023
+MATH 2415,Calculus I,4,B,Spring 2023
+CPS 2231,Computer Programming,4,A,Fall 2023
+MATH 2110,Discrete Structures,3,A-,Fall 2023
+CPS 2232,Data Structures,4,A,Spring 2024
+ENG 3091,Technical Writing,3,B+,Spring 2024
+CPS 4301,Special Topics in Computer Science,3,A-,Fall 2024
+MATH 3700,Mathematical Modeling,3,B+,Fall 2024

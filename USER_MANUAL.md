@@ -1,161 +1,309 @@
-# Kean Credit Compass - User Manual
+# User Manual - Kean Credit Compass
 
-## Introduction
+Track your degree progress for Computer Science or IT majors.
 
-Kean Credit Compass is a web-based tool designed to help Kean University Computer Science and IT students track their academic progress toward graduation. The application allows students to upload their completed courses and automatically calculates their progress against program requirements.
+---
 
 ## Getting Started
 
-1. Open the application in your web browser
-2. Click "Start Checking" on the landing page
-3. Select your major and upload your course CSV file
-4. View your degree progress and completion status
+### What You Need
+- Your completed courses in CSV format
+- A web browser (Chrome, Firefox, Edge, Safari)
 
-## Features Overview
+### Steps
+1. Open app: http://localhost:3000
+2. Click "Start Checking"
+3. Select major (Computer Science or IT)
+4. Upload CSV file
+5. View progress
 
-### 1. Landing Page
-
-The home page provides a welcoming interface with:
-- Application logo and title
-- "Start Checking" button to begin the process
-
-### 2. Course Upload
-
-This page allows you to upload your completed courses and validate the data.
-
-**Key Features:**
-- Major selection (Computer Science or IT)
-- Drag-and-drop CSV file upload
-- Real-time file validation
-- Data preview table
-- Error detection and reporting
-
-**File Requirements:**
-- File type: CSV only
-- Maximum size: 5MB
-- Encoding: UTF-8
-
-### 3. Degree Progress
-
-After successful upload, this page displays your academic progress.
-
-**Information Displayed:**
-- Total credits completed
-- Credits remaining (out of 120 required)
-- Completion percentage with visual progress bar
-- Circular progress chart
-- Complete list of uploaded courses with details
+---
 
 ## CSV File Requirements
 
-### Required Columns
-
-Your CSV file must include the following columns in the header row:
-- Course Code
-- Course Name
-- Credits
-- Grade
-- Semester
-
-### Data Specifications
-
-**Course Code:** Any valid course code (e.g., CPS 1231)
-
-**Course Name:** Full name of the course
-
-**Credits:** Numeric value between 0 and 6
-
-**Grade:** Must be one of the following valid grades:
-- A, A-, B+, B, B-, C+, C, C-, D, F
-
-**Semester:** Semester when the course was taken (e.g., Fall 2023)
-
-### Example CSV Format
-
+### Required Columns (exact names)
 ```
+Course Code, Course Name, Credits, Grade, Semester
+```
+
+### Rules
+- **Credits:** Number from 0 to 6
+- **Grades:** A, A-, B+, B, B-, C+, C, C-, D, F (case-insensitive)
+- **File size:** Max 5MB
+- **Format:** CSV only (not Excel .xlsx)
+
+### Example File
+```csv
 Course Code,Course Name,Credits,Grade,Semester
-CPS 1231,Computer Programming I,4,A,Fall 2023
-CPS 1232,Computer Programming II,4,B+,Spring 2024
-MATH 1203,Calculus I,3,B,Fall 2023
+CPS 1231,Fundamentals of Computer Science,4,A,Fall 2022
+HIST 1062,Worlds of History,3,B+,Fall 2022
+ENG 1030,Composition,3,A,Spring 2023
+MATH 2415,Calculus I,4,B,Spring 2023
+CPS 2231,Computer Programming,4,A,Fall 2023
+MATH 2110,Discrete Structures,3,A-,Fall 2023
+CPS 2232,Data Structures,4,A,Spring 2024
+ENG 3091,Technical Writing,3,B+,Spring 2024
+CPS 4301,Special Topics in Computer Science,3,A-,Fall 2024
+MATH 3700,Mathematical Modeling,3,B+,Fall 2024
 ```
 
-### Sample File
+**Download sample:** Click "Download Sample" on upload page.
 
-A sample CSV file is available for download on the Course Upload page. Use it as a template for formatting your own data.
+---
 
-## User Workflow
+## Using the App
 
-### Step 1: Start the Application
-- Navigate to the landing page
-- Click "Start Checking"
+### Page 1: Landing
+Simple start screen.
+- Click "Start Checking" to begin
 
-### Step 2: Select Your Major
-- Choose either "Computer Science" or "IT" from the dropdown menu
-- This selection is required before uploading
+### Page 2: Upload
 
-### Step 3: Upload Your CSV File
-- Download the sample CSV file (optional)
-- Prepare your CSV file with completed courses
-- Drag and drop the file into the upload zone, or click to browse
-- Wait for validation to complete
+**Select Major** (required first):
+- Computer Science → Checks BS-CPS requirements
+- IT → Checks BS-IT requirements
 
-### Step 4: Review Validation Results
-- If successful: Preview your uploaded courses in the table
-- If errors found: Review the error messages and correct your CSV file
-- Use "Upload Another File" to try again if needed
+**Upload CSV**:
+- Drag file onto upload zone, OR
+- Click to browse files
+- Wait for validation (instant)
 
-### Step 5: View Your Progress
-- Click "View Result" after successful validation
-- Review your completion statistics
-- Check completed courses and remaining credits
-- Use "Re-upload CSV" to update your data
-- Use "Back to Dashboard" to return to the home page
+**Validation Results**:
+- ✓ Success: Shows course count, displays table preview
+- ✗ Error: Lists all problems found
 
-## Troubleshooting
+**Preview Table**:
+- See all courses before proceeding
+- Check data looks correct
 
-**"Invalid file type" error**
-- Ensure file has .csv extension, not .xlsx
+**Buttons**:
+- "View Result" → See progress (only if valid)
+- "Try Again" → Upload different file
 
-**"Missing required header" error**
-- Verify CSV has all columns: Course Code, Course Name, Credits, Grade, Semester
-- Check for typos in column names
+### Page 3: Progress
 
-**"Grade is not valid" error**
-- Use only: A, A-, B+, B, B-, C+, C, C-, D, F
+**Top Section - Overall Stats**:
+- Total credits completed (e.g., 34)
+- Credits remaining (e.g., 86 out of 120)
+- Completion rate with bar (e.g., 28%)
 
-**"Credits must be a number between 0 and 6" error**
-- Ensure all credit values are numeric and between 0-6
+**Middle Section - Categories**:
 
-**File upload fails or freezes**
-- Check file size (max 5MB)
-- Try Chrome or Firefox
-- Clear cache and reload
+Each category shows:
+- Name (e.g., "General Education")
+- Progress: X / Y credits
+- Progress bar
+- Completed courses with checkmarks
 
-**Cannot see uploaded data**
-- Select a major before uploading
-- Verify CSV contains data rows
+**Category Types**:
 
-**Progress shows incorrectly**
-- Check Credits values in CSV
-- System requires 120 total credits
+1. **Fixed Requirements** (GE, Core, Capstone)
+   - Shows completed courses
+   - Click "View Available" to see what's left
+   - Some have choice groups (pick 1 of 3)
 
-## Notes
+2. **Major Electives**
+   - System auto-detects CPS 3000+ courses
+   - Only counts courses not used elsewhere
+   - Shows rule: "CPS courses at 3000+ level"
+   - Displays your completed electives
+   - Click "View Guide" for help
 
-- All fields in the CSV file are required and cannot be empty
-- The application assumes 120 total credits are required for graduation
-- Progress is calculated based on completed credits versus total required credits
-- You can upload a new CSV file at any time to update your progress
+3. **Free Electives**
+   - System auto-detects non-CPS 3000+ courses
+   - Only counts courses not used elsewhere
+   - Shows rule: "Any dept, 3000+ level, X-Y credits"
+   - Displays your completed electives
+   - Click "View Guide" for help
 
-## Reporting Issues
+**Expand/Collapse**:
+- Click button to show available courses
+- Click again to hide
 
-To report bugs or suggest features, open an issue on GitHub.
+**Bottom Section - Course List**:
+- Circular chart showing completion %
+- Full list of uploaded courses
+- Shows: Code, Name, Credits, Semester
 
-Include:
-- Problem description
-- Steps to reproduce
-- Browser and OS
-- Screenshot if helpful
-- Sample CSV (remove personal info)
+**Buttons**:
+- "Upload Again" → Upload updated CSV
+- "Home" → Return to start
 
-Example: "Uploading CSV with 10 courses shows 0% completion on progress page. Chrome 120, Windows 11. No error messages."
+---
 
+## Understanding Results
+
+### Credit Tracking
+App tracks 120 total credits required for graduation.
+
+### Categories
+Your courses are matched to these categories:
+
+1. **General Education** (39 cr)
+   - Foundation courses (ENG, MATH, HIST, etc.)
+
+2. **Additional Required** (varies)
+   - Extra required courses (e.g., ENG 3091)
+
+3. **Major Core** (varies)
+   - Required major courses (CPS 1231, 2231, 2232, etc.)
+
+4. **Major Concentration** (varies)
+   - Focus area courses
+
+5. **Major Electives** (varies)
+   - Any CPS course 3000+ not already required
+   - System finds these automatically from your CSV
+   - Example: CPS 4301 if not required elsewhere
+
+6. **Capstone** (3-6 cr)
+   - Senior project/thesis
+
+7. **Free Electives** (varies)
+   - Any non-CPS course 3000+ not already used
+   - System finds these automatically from your CSV
+   - Example: MATH 3700 if not required elsewhere
+
+### No Double-Counting
+Each course only counts once. If CPS 4301 is required in Core, it won't count as Major Elective.
+
+### Status Badges
+- **"Met"** = Category complete
+- **"X needed"** = Still need X credits
+
+---
+
+## Common Issues
+
+### Upload Problems
+
+**"Select a major first"**
+→ Choose CS or IT before uploading
+
+**"Invalid file type. Use CSV"**
+→ Save Excel file as CSV format
+→ Right-click file → should end with .csv
+
+**"File too large (max 5MB)"**
+→ Remove extra columns
+→ Only include required 5 columns
+
+### Validation Errors
+
+**"Missing column: X"**
+→ CSV must have exact headers:
+→ `Course Code,Course Name,Credits,Grade,Semester`
+
+**"Row X: Missing course code"**
+→ Every row needs all 5 fields filled
+
+**"Row X: Invalid credits (must be 0-6)"**
+→ Credits must be number 0-6
+→ Fix decimal issues (use 3 not 3.0)
+
+**"Row X: Invalid grade"**
+→ Use: A, A-, B+, B, B-, C+, C, C-, D, F
+→ Check for typos (not "B +" with space)
+
+**"Row X: Missing semester"**
+→ Fill in semester column
+→ Any format ok (Fall 2023, F23, etc.)
+
+### Results Issues
+
+**Progress shows 0%**
+→ Check credits are numbers not text
+→ Verify CSV has data rows (not just header)
+
+**Course not matching**
+→ Check course code exact (CPS 1231 not CPS1231)
+→ Space between subject and number
+
+**Wrong category assignment**
+→ System follows DB program requirements
+→ Course may be in different category than expected
+
+---
+
+## Tips
+
+- Keep CSV updated each semester
+- Use sample file as template
+- Check all data before "View Result"
+- Expand categories to explore options
+- Major electives = advanced CPS courses
+- Free electives = explore other departments
+- Consult advisor for course planning
+- 3000+ means junior/senior level (3000, 4000, etc.)
+
+---
+
+## Getting Help
+
+**CSV Issues**
+1. Download sample file
+2. Copy format exactly
+3. Use Excel/Google Sheets → Save As CSV
+
+**Progress Questions**
+1. Check course codes match DB
+2. Verify major selection correct
+3. Review category expansions
+
+**Technical Problems**
+Report on GitHub with:
+- What happened
+- Your CSV (remove personal info)
+- Screenshot
+- Browser used
+
+Example: "Upload shows 0 courses. Chrome. CSV attached."
+
+---
+
+## Sample Workflow
+
+**Emily's Example:**
+
+1. Opens app, clicks "Start Checking"
+2. Selects "Computer Science"
+3. Downloads sample CSV
+4. Opens in Excel, adds her 10 completed courses
+5. Saves as CSV (File → Save As → CSV)
+6. Drags CSV to upload zone
+7. Sees: "10 courses loaded" ✓
+8. Reviews table preview - looks good
+9. Clicks "View Result"
+10. Sees: 34 credits done, 86 to go, 28% complete
+11. Expands "Major Core" - 3 more courses needed
+12. Notes CPS 4301 counted as Major Elective
+13. Notes MATH 3700 counted as Free Elective
+14. Plans next semester courses
+
+---
+
+## FAQ
+
+**Q: Can I use Excel file?**
+A: No, must convert to CSV first.
+
+**Q: How many courses can I upload?**
+A: No limit. Average student: 40-50 courses.
+
+**Q: Do I need internet?**
+A: Yes, for DB connection.
+
+**Q: Is my data saved?**
+A: No, not stored. Upload fresh each time.
+
+**Q: What if my course isn't recognized?**
+A: Check spelling and code format.
+
+**Q: Can I edit after upload?**
+A: No, edit CSV and re-upload.
+
+**Q: Why 120 credits?**
+A: Standard bachelor's degree requirement.
+
+**Q: What's the difference between Major and Free electives?**
+A: Major = CPS dept, Free = any other dept.

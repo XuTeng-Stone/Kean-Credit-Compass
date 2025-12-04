@@ -7,30 +7,32 @@ Web app for Kean CS/IT students to track degree progress. Upload your completed 
 ## Tech Stack
 
 **Frontend:** React 19, React Router  
-**Backend:** PHP + PDO  
-**Database:** MySQL (imc.kean.edu)  
-**Server:** Apache (XAMPP)
+**Backend:** Remote PHP API (obi.kean.edu)  
+**Database:** MySQL (imc.kean.edu)
 
 ---
 
 ## Features
 
-✓ CSV course upload with drag-and-drop  
-✓ Real-time validation (columns, grades, credits)  
-✓ Degree progress by category  
-✓ Smart elective detection (Major/Free)  
-✓ Expand/collapse available courses  
-✓ Mobile responsive  
-✓ 120 credit degree tracking
+- CSV course upload with drag-and-drop  
+- Real-time validation (columns, grades, credits)  
+- Degree progress by category  
+- Smart elective detection (Major/Free)  
+- Expand/collapse available courses  
+- Mobile responsive  
+- 120 credit degree tracking
 
 **Categories Tracked:**
-- General Education
+- GE Foundation
+- GE Humanities
+- GE Social Sciences
+- GE Science & Mathematics
 - Additional Required
 - Major Core
-- Concentration
+- Major Concentration
 - Major Electives (CPS 3000+)
 - Capstone
-- Free Electives (non-CPS 3000+)
+- Free Electives (non-CPS)
 
 ---
 
@@ -39,22 +41,14 @@ Web app for Kean CS/IT students to track degree progress. Upload your completed 
 ### Prerequisites
 
 - Node.js 14+
-- XAMPP (Apache + MySQL)
 - Modern browser
 
 ### Installation
 
 ```bash
-# Clone
-git clone https://github.com/YOUR_USERNAME/Kean-Credit-Compass.git
+git clone https://github.com/XuTeng-Stone/Kean-Credit-Compass.git
 cd Kean-Credit-Compass
 
-# Backend setup
-# 1. Copy kcc-backend/ to C:\xampp\htdocs\
-# 2. Start Apache in XAMPP Control Panel
-# Database already configured for imc.kean.edu
-
-# Frontend setup
 cd kcc-frontend/my-app
 npm install
 npm start
@@ -68,20 +62,19 @@ Opens at http://localhost:3000
 
 ```
 kcc-backend/api/
-  config.php                    # Database setup
-  get_program_requirements.php  # Get requirements
-  compare_courses.php           # Match courses
+  test.php        # Main API (GET requirements, POST comparison)
+  kcc_table.php   # Database viewer page
 
 kcc-frontend/my-app/
   src/
     Pages/
-      LandingPage.jsx           # Home page
-      CourseUpload.jsx          # Upload & validate
-      DegreeProgress.jsx        # Show results
-    config.js                   # API settings
-    App.js                      # Routing
+      LandingPage.jsx     # Home page
+      CourseUpload.jsx    # Upload & validate
+      DegreeProgress.jsx  # Show results
+    config.js             # API settings
+    App.js                # Routing
   public/
-    sample-courses.csv          # Example file
+    sample-courses.csv    # Example file
 ```
 
 ---
@@ -90,24 +83,8 @@ kcc-frontend/my-app/
 
 ### API URL (`src/config.js`)
 
-Auto-detects localhost vs network IP:
-
 ```javascript
-const getApiBaseUrl = () => {
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost/kcc-backend/api';
-  }
-  return `http://${window.location.hostname}/kcc-backend/api`;
-};
-```
-
-### Database (`kcc-backend/api/config.php`)
-
-```php
-$dbHost = 'imc.kean.edu';
-$dbName = '2025F_CPS4301_01';
-$dbUser = '2025F_CPS4301_01';
-$dbPass = '2025F_CPS4301_01';
+export const API_BASE_URL = 'https://obi.kean.edu/~toranm@kean.edu';
 ```
 
 ---
@@ -139,7 +116,7 @@ Download `sample-courses.csv` from upload page.
 
 ## API Endpoints
 
-### POST `/compare_courses.php`
+### POST `/test.php`
 Compare student courses with program requirements.
 
 **Request:**
@@ -147,7 +124,7 @@ Compare student courses with program requirements.
 {
   "program_code": "BS-CPS",
   "courses": [
-    {"Course Code": "CPS 1231", "Course Name": "...", "Credits": "4", ...}
+    {"Course Code": "CPS 1231", "Course Name": "...", "Credits": "4", "Grade": "A", "Semester": "Fall 2024"}
   ]
 }
 ```
@@ -156,12 +133,13 @@ Compare student courses with program requirements.
 ```json
 {
   "program": {"code": "BS-CPS", "total_credits_req": 120},
+  "total_completed_credits": 34,
   "categories": [
     {
-      "name": "General Education",
-      "type": "general_education",
-      "completed_credits": 15,
-      "required_credits": 39,
+      "name": "GE - Foundation",
+      "type": "ge_foundation",
+      "completed_credits": 12,
+      "required_credits": 13,
       "fixed_courses": [...],
       "choice_courses": [...]
     }
@@ -169,7 +147,7 @@ Compare student courses with program requirements.
 }
 ```
 
-### GET `/get_program_requirements.php?code=BS-CPS`
+### GET `/test.php?code=BS-CPS&format=json`
 Fetch all requirements for a program.
 
 ---
@@ -187,30 +165,18 @@ npm test        # Run tests
 ## How It Works
 
 1. **Upload:** Student selects major (CS/IT) and uploads CSV
-2. **Validate:** Frontend checks format, backend validates data
-3. **Compare:** PHP queries DB for program requirements
+2. **Validate:** Frontend checks format
+3. **Compare:** Remote API queries DB for program requirements
 4. **Match:** Algorithm matches completed courses to requirements
-5. **Electives:** Auto-identifies Major (CPS 3000+) and Free (non-CPS 3000+) electives
+5. **Electives:** Auto-identifies Major (CPS 3000+) and Free (non-CPS) electives
 6. **Display:** Shows progress by category with expand/collapse
 
 **Smart Matching:**
 - Fixed courses: Direct match
 - Choice courses: Match any from group
 - Major Electives: CPS 3000+ not already used
-- Free Electives: non-CPS 3000+ not already used
+- Free Electives: non-CPS not already used
 - No double-counting
-
----
-
-## Testing
-
-**Local:**
-- http://localhost:3000
-
-**Network (other devices):**
-1. Find your IP: `ipconfig` (Windows) or `ifconfig` (Mac/Linux)
-2. Update `src/config.js` if needed
-3. Access from other device: `http://YOUR_IP:3000`
 
 ---
 
@@ -222,10 +188,8 @@ npm run build
 # Upload build/ folder or connect GitHub repo
 ```
 
-### Backend (Web Server)
-1. Copy `kcc-backend/` to server
-2. Update `config.php` with production DB credentials
-3. Ensure PHP 7.4+ with PDO MySQL extension
+### Backend
+Upload `test.php` and `kcc_table.php` to PHP-enabled web server.
 
 ---
 
@@ -242,8 +206,8 @@ npm run build
 ## Troubleshooting
 
 **"Failed to fetch data"**
-- Check Apache is running
-- Verify `http://localhost/kcc-backend/api/compare_courses.php` accessible
+- Check internet connection
+- Verify API server is accessible
 
 **CSV validation fails**
 - Check all 5 columns present
@@ -253,9 +217,6 @@ npm run build
 **Wrong progress calculation**
 - Verify credits are numeric in CSV
 - System requires 120 total credits
-
-**CORS errors (network testing)**
-- Add your IP to `compare_courses.php` allowed origins
 
 ---
 

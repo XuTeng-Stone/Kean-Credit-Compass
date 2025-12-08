@@ -8,7 +8,7 @@ The tests are built using **Python, PyTest, and Selenium WebDriver** to validate
 
 ## 📂 Project Structure
 
-```text
+```md
 auto-test/
 ├── data/
 │   ├── valid.csv

@@ -1,3 +1,7 @@
+# Server-side script for testing database connectivity
+# Runs only on the server; accepts program/courses payloads and validates against DB
+
+
 <?php
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');

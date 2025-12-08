@@ -55,6 +55,34 @@ Routes: `/` → `/upload` → `/result`
 
 ---
 
+## Selenium E2E (auto-test)
+- Purpose: end-to-end validation of upload flow and messages using `auto-test/data/{valid.csv,bad_credits.csv,bad_grade.csv}`
+- Requirements: Python 3.9+, Chrome with matching ChromeDriver, `pip install selenium pytest webdriver-manager`
+- Layout: `auto-test/data` (CSV), `auto-test/tests` (cases and shared flows), `auto-test/conftest.py` (driver fixture)
+- Run:
+  ```bash
+  cd auto-test
+  BASE_URL=http://localhost:3000 python -m pytest -v
+  ```
+- Cases:
+  - valid.csv uploads successfully, preview renders, then navigates to result page
+  - bad_credits.csv shows invalid credits error; no success state
+  - bad_grade.csv shows invalid grade error; no success state
+  - Upload without selecting major shows required-major message
+  - Non-CSV upload is rejected
+  - Missing column (no Semester) shows missing column message
+  - Empty file shows missing column message
+  - Header-only CSV shows “0 courses loaded”
+  - >5MB CSV shows “file too large”
+  - Repeat upload: valid.csv success then bad_grade.csv error with invalid grade listed
+
+Latest run (see `auto-test/test-report.md` for details):
+- Command: `BASE_URL=http://localhost:3000 python3 -m pytest -v`
+- Result: 10 passed, 0 failed, 5 deselected
+- Warning: urllib3 NotOpenSSLWarning (LibreSSL 2.8.3), informational only
+
+---
+
 ## Troubleshooting
 - Cannot load result / “Failed to fetch data”
   - Check network connectivity

@@ -157,7 +157,11 @@ Fetch all requirements for a program.
 ```bash
 npm start       # Dev server (port 3000)
 npm run build   # Production build
-npm test        # Run tests
+npm test        # React unit tests (if any)
+
+# Selenium E2E (frontend must be running on BASE_URL)
+cd auto-test
+BASE_URL=http://localhost:3000 python -m pytest -v
 ```
 
 ---

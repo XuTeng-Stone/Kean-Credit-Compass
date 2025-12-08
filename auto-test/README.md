@@ -7,21 +7,24 @@ The tests are built using **Python, PyTest, and Selenium WebDriver** to validate
 ---
 
 ## 📂 Project Structure
+
+```text
 auto-test/
 ├── data/
-│ ├── valid.csv
-│ ├── bad_grade.csv
-│ ├── bad_credits.csv
-│ └── .gitkeep
+│   ├── valid.csv
+│   ├── bad_grade.csv
+│   ├── bad_credits.csv
+│   └── .gitkeep
+│
 ├── tests/
-│ ├── init.py
-│ ├── common_flows.py
-│ ├── test_valid_upload.py
-│ ├── test_invalid_grade.py
-│ └── test_invalid_credits.py
+│   ├── __init__.py
+│   ├── common_flows.py
+│   ├── test_valid_upload.py
+│   ├── test_invalid_grade.py
+│   └── test_invalid_credits.py
+│
 ├── conftest.py
 └── README.md
-
 
 ---------------------------------------------------------------------------------------------------------------------------------------
 

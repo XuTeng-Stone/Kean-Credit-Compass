@@ -40,7 +40,7 @@ Web app for Kean CS/IT students to track degree progress. Upload your completed 
 
 ### Prerequisites
 
-- Node.js 14+
+- Node.js 18+
 - Modern browser
 
 ### Installation
@@ -75,6 +75,21 @@ kcc-frontend/my-app/
     App.js                # Routing
   public/
     sample-courses.csv    # Example file
+
+auto-test/
+  tests/
+    common_flows.py       # Shared test utilities
+    test_*.py            # Selenium E2E tests
+  conftest.py             # Pytest configuration
+  data/
+    valid.csv            # Test data for valid uploads
+    bad_credits.csv      # Test data for invalid credits
+    bad_grade.csv        # Test data for invalid grades
+
+data/
+  valid.csv              # Valid course data samples
+  bad_credits.csv        # Invalid credits test data
+  bad_grade.csv          # Invalid grades test data
 ```
 
 ---
@@ -84,7 +99,7 @@ kcc-frontend/my-app/
 ### API URL (`src/config.js`)
 
 ```javascript
-export const API_BASE_URL = 'https://obi.kean.edu/~toranm@kean.edu';
+export const API_BASE_URL = 'https://obi.kean.edu/~toranm@kean.edu/kcc';
 ```
 
 ---
@@ -155,13 +170,15 @@ Fetch all requirements for a program.
 ## Commands
 
 ```bash
-npm start       # Dev server (port 3000)
+# Frontend development
+npm start       # Start dev server (port 3000)
 npm run build   # Production build
 npm test        # React unit tests (if any)
 
-# Selenium E2E (frontend must be running on BASE_URL)
+# End-to-End Testing (requires frontend running)
 cd auto-test
 BASE_URL=http://localhost:3000 python -m pytest -v
+# Individual test files: python -m pytest tests/test_valid_upload.py
 ```
 
 ---

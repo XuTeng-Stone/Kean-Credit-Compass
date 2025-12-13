@@ -18,7 +18,7 @@ function LandingPage() {
         <button className="start-btn" onClick={() => navigate("/upload")}>
           Start Checking
         </button>
-        <div className="topic-tag">Made by ...</div>
+        <div className="topic-tag">Made by Mitch, Stone, Xianyang</div>
       </div>
     </div>
   );

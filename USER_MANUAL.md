@@ -6,7 +6,7 @@
 
 | Component | Requirement |
 |-----------|-------------|
-| Node.js | v14.0 or higher |
+| Node.js | v18.0 or higher |
 | npm | v6.0 or higher |
 | Browser | Chrome, Firefox, Edge, or Safari (latest) |
 | Internet | Required for API connection |
@@ -16,7 +16,7 @@
 
 The backend API is hosted at:
 ```
-https://obi.kean.edu/~toranm@kean.edu/test.php
+https://obi.kean.edu/~toranm@kean.edu/kcc
 ```
 
 **Server Requirements (if self-hosting):**
@@ -60,7 +60,65 @@ npm run build
 
 ---
 
-## 2. Main Features
+## 2. Project Structure
+
+### Directory Overview
+
+```
+Kean-Credit-Compass/
+├── kcc-backend/                 # Backend API (PHP)
+│   └── api/
+│       ├── test.php            # Main API endpoint
+│       └── kcc_table.php       # Database viewer
+├── kcc-frontend/               # Frontend application
+│   └── my-app/
+│       ├── src/
+│       │   ├── Pages/
+│       │   │   ├── LandingPage.jsx    # Home page
+│       │   │   ├── CourseUpload.jsx   # CSV upload & validation
+│       │   │   └── DegreeProgress.jsx # Results display
+│       │   ├── config.js              # API configuration
+│       │   └── App.js                 # Main routing
+│       └── public/
+│           └── sample-courses.csv     # Example CSV file
+├── auto-test/                  # End-to-End testing
+│   ├── tests/
+│   │   ├── common_flows.py     # Shared test utilities
+│   │   └── test_*.py          # Individual test cases
+│   ├── conftest.py            # Pytest configuration
+│   └── data/
+│       ├── valid.csv          # Valid test data
+│       ├── bad_credits.csv    # Invalid credits test data
+│       └── bad_grade.csv      # Invalid grades test data
+├── data/                      # Additional test data
+│   ├── valid.csv
+│   ├── bad_credits.csv
+│   └── bad_grade.csv
+└── tests/                     # Legacy test directory
+    ├── __init__.py
+    ├── common_flows.py
+    └── test_*.py
+```
+
+### Key Components
+
+**Backend (kcc-backend/)**
+- `test.php`: Main API handling degree requirement comparisons
+- `kcc_table.php`: Database table viewer for development
+
+**Frontend (kcc-frontend/my-app/)**
+- `src/Pages/`: React components for different application screens
+- `config.js`: API endpoint configuration
+- `public/`: Static assets including sample CSV files
+
+**Testing (auto-test/)**
+- Selenium-based end-to-end tests
+- Test data for various validation scenarios
+- Automated test execution with pytest
+
+---
+
+## 3. Main Features
 
 ### Feature Overview
 
@@ -157,7 +215,7 @@ Click the button to see your degree progress.
 
 ---
 
-## 4. Additional Scenarios
+## 5. Additional Scenarios
 
 ### Scenario A: Handling Invalid CSV File
 
@@ -223,3 +281,119 @@ MATH 2415,Calculus I,4,B,Spring 2023
 - Upload the sample file
 - View how courses are categorized
 - Use as template for your own course list
+
+---
+
+## 6. Automated Testing
+
+### Testing Framework
+
+**Kean Credit Compass** includes comprehensive automated testing using Selenium WebDriver and pytest to ensure application reliability and functionality.
+
+### Prerequisites for Testing
+
+| Component | Requirement |
+|-----------|-------------|
+| Python | 3.8+ |
+| pytest | 6.0+ |
+| Selenium | 4.0+ |
+| ChromeDriver | Latest compatible version |
+| Frontend | Must be running on http://localhost:3000 |
+
+### Test Structure
+
+**Test Files (`auto-test/tests/`)**
+- `test_valid_upload.py`: Tests successful CSV upload and validation
+- `test_invalid_credits.py`: Tests credit validation (0-6 range)
+- `test_invalid_grade.py`: Tests grade validation (A, A-, B+, etc.)
+
+**Test Data (`auto-test/data/`)**
+- `valid.csv`: Valid course data for successful upload tests
+- `bad_credits.csv`: Invalid credit values for validation testing
+- `bad_grade.csv`: Invalid grade formats for validation testing
+
+### Running Automated Tests
+
+#### Setup Testing Environment
+
+```bash
+# Install Python dependencies (if not already installed)
+pip install pytest selenium webdriver-manager
+
+# Start the frontend application
+cd kcc-frontend/my-app
+npm start
+# Frontend should be running on http://localhost:3000
+```
+
+#### Execute All Tests
+
+```bash
+# Navigate to test directory
+cd auto-test
+
+# Run all tests with verbose output
+BASE_URL=http://localhost:3000 python -m pytest -v
+```
+
+#### Run Specific Test Files
+
+```bash
+# Test valid upload functionality
+BASE_URL=http://localhost:3000 python -m pytest tests/test_valid_upload.py -v
+
+# Test invalid credits validation
+BASE_URL=http://localhost:3000 python -m pytest tests/test_invalid_credits.py -v
+
+# Test invalid grades validation
+BASE_URL=http://localhost:3000 python -m pytest tests/test_invalid_grade.py -v
+```
+
+### Test Scenarios Covered
+
+1. **Valid Upload Flow**
+   - Select major (Computer Science/IT)
+   - Upload valid CSV file
+   - Verify successful validation
+   - Navigate to results page
+   - Confirm progress calculation accuracy
+
+2. **Invalid Credits Validation**
+   - Upload CSV with credits outside 0-6 range
+   - Verify appropriate error messages
+   - Ensure upload is rejected
+
+3. **Invalid Grades Validation**
+   - Upload CSV with invalid grade formats
+   - Verify grade validation errors
+   - Confirm system rejects invalid grades
+
+### Test Configuration
+
+**conftest.py**: Contains pytest fixtures and setup
+- Automatic Chrome WebDriver initialization
+- Browser window maximization
+- Automatic driver cleanup after tests
+
+**Common Flows (common_flows.py)**
+- Shared functions for common test operations
+- Major selection utilities
+- File upload helpers
+- Navigation functions
+
+### Troubleshooting Tests
+
+**Common Issues:**
+- **"Frontend not accessible"**: Ensure `npm start` is running on port 3000
+- **"ChromeDriver not found"**: webdriver-manager should handle this automatically
+- **"Test timeout"**: Check internet connection and API availability
+- **"Element not found"**: UI changes may require test updates
+
+**Debug Mode:**
+```bash
+# Run tests with detailed output
+BASE_URL=http://localhost:3000 python -m pytest -v -s
+
+# Run single test for debugging
+BASE_URL=http://localhost:3000 python -m pytest tests/test_valid_upload.py::test_valid_csv_upload -v -s
+```

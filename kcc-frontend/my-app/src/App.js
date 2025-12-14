@@ -5,7 +5,7 @@ import DegreeProgress from './Pages/DegreeProgress';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/">
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/upload" element={<CourseUpload />} />

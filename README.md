@@ -2,6 +2,8 @@
 
 Web app for Kean CS/IT students to track degree progress. Upload your completed courses CSV and instantly see what's done and what's left.
 
+**Note:** Currently supports Computer Science major only. IT major functionality is planned but not yet implemented.
+
 ---
 
 ## Tech Stack
@@ -185,7 +187,7 @@ BASE_URL=http://localhost:3000 python -m pytest -v
 
 ## How It Works
 
-1. **Upload:** Student selects major (CS/IT) and uploads CSV
+1. **Upload:** Student selects major (CS only - IT planned) and uploads CSV
 2. **Validate:** Frontend checks format
 3. **Compare:** Remote API queries DB for program requirements
 4. **Match:** Algorithm matches completed courses to requirements

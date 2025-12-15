@@ -170,19 +170,19 @@ Kean-Credit-Compass/
 #### Step 1: Open the Application
 Navigate to `http://localhost:3000` in your browser.
 
-![Landing Page]
+![Landing Page](docs/images/landing-page.png)
 - You will see the landing page with "Start Checking" button
 
 #### Step 2: Click "Start Checking"
 Click the button to proceed to the upload page.
 
 #### Step 3: Select Your Major
-![Select Major]
+![Select Major](docs/images/major-selection.png)
 - Click "Computer Science" or "IT" button
 - The selected major will be highlighted
 
 #### Step 4: Upload Your CSV File
-![Upload Area]
+![Upload Area](docs/images/upload-area.png)
 - Drag your CSV file onto the upload zone, OR
 - Click the upload zone to browse files
 
@@ -194,7 +194,7 @@ HIST 1062,Worlds of History,3,B+,Fall 2022
 ```
 
 #### Step 5: Review Validation Results
-![Validation Success]
+![Validation Success](docs/images/validation-success.png)
 - Success message shows number of courses loaded
 - Preview table displays all uploaded courses
 - If errors exist, they will be listed for correction
@@ -203,7 +203,7 @@ HIST 1062,Worlds of History,3,B+,Fall 2022
 Click the button to see your degree progress.
 
 #### Step 7: View Progress Results
-![Progress Page]
+![Progress Page](docs/images/progress-page.png)
 - **Top Section:** Total credits completed, remaining credits, completion percentage
 - **Middle Section:** Category breakdown with progress bars
 - **Bottom Section:** Full course list with circular chart
@@ -225,7 +225,7 @@ Click the button to see your degree progress.
 Upload a CSV with errors (missing columns, invalid grades, etc.)
 
 #### Step 2: View Error Messages
-![Validation Errors]
+![Validation Errors](docs/images/validation-errors.png)
 - System displays specific error messages:
   - "Missing column: Credits"
   - "Row 3: Invalid grade 'X'"
@@ -249,9 +249,9 @@ Upload a CSV with errors (missing columns, invalid grades, etc.)
 - Upload same CSV file with your completed courses
 
 #### Step 3: View IT-Specific Requirements
-![IT Progress]
-- Categories will reflect BS-IT program requirements
-- Different Major Core and Concentration courses
+> **Note:** IT major functionality is not yet implemented. Currently supports Computer Science major only.
+- Categories will reflect BS-IT program requirements (planned)
+- Different Major Core and Concentration courses (planned)
 - Same GE requirements as CS
 
 #### Step 4: Compare Requirements

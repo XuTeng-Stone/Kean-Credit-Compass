@@ -508,6 +508,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result['categories'][] = $category;
     }
     
+    if (!empty($requirements['capstone'])) {
+        $category = [
+            'name' => 'Capstone',
+            'type' => 'capstone',
+            'fixed_courses' => [],
+            'choice_courses' => [],
+            'completed_count' => 0,
+            'total_count' => 0,
+            'completed_credits' => 0,
+            'required_credits' => 3
+        ];
+
+        $capstoneChoices = [];
+        foreach ($requirements['capstone'] as $course) {
+            $courseKey = getCourseKey($course['subject'], $course['number_code']);
+            $isCompleted = matchCourse($courseKey, $completedCourses);
+
+            $capstoneChoices[] = [
+                'subject' => $course['subject'],
+                'number_code' => $course['number_code'],
+                'title' => $course['title'],
+                'credits' => $course['credits'],
+                'completed' => $isCompleted
+            ];
+
+            if ($isCompleted) {
+                $category['completed_credits'] += $completedCourses[$courseKey]['credits'];
+                $category['completed_count']++;
+                $usedCourses[$courseKey] = true;
+            }
+        }
+
+        $category['choice_courses'][] = [
+            'label' => 'Choose one capstone course',
+            'courses' => $capstoneChoices
+        ];
+
+        $result['categories'][] = $category;
+    }
+
     if (!empty($requirements['major_electives'])) {
         foreach ($requirements['major_electives'] as $elective) {
             $category = [
@@ -525,21 +565,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'completed_credits' => 0,
                 'required_credits' => $elective['min_credits']
             ];
-            
+
             $allowedSubjects = array_map('trim', explode(',', $elective['subjects']));
             $minLevel = intval($elective['min_level']);
-            
+
             foreach ($completedCourses as $courseCode => $courseInfo) {
                 if (isset($usedCourses[$courseCode])) {
                     continue;
                 }
-                
+
                 $parts = explode(' ', $courseCode);
                 if (count($parts) >= 2) {
                     $subject = $parts[0];
                     $numberCode = $parts[1];
                     $courseLevel = intval($numberCode);
-                    
+
                     if (in_array($subject, $allowedSubjects) && $courseLevel >= $minLevel) {
                         $category['fixed_courses'][] = [
                             'subject' => $subject,
@@ -548,56 +588,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'credits' => $courseInfo['credits'],
                             'completed' => true
                         ];
-                        
+
                         $category['completed_count']++;
                         $category['completed_credits'] += $courseInfo['credits'];
                         $usedCourses[$courseCode] = true;
                     }
                 }
             }
-            
+
             $result['categories'][] = $category;
         }
-    }
-    
-    if (!empty($requirements['capstone'])) {
-        $category = [
-            'name' => 'Capstone',
-            'type' => 'capstone',
-            'fixed_courses' => [],
-            'choice_courses' => [],
-            'completed_count' => 0,
-            'total_count' => 0,
-            'completed_credits' => 0,
-            'required_credits' => 3
-        ];
-        
-        $capstoneChoices = [];
-        foreach ($requirements['capstone'] as $course) {
-            $courseKey = getCourseKey($course['subject'], $course['number_code']);
-            $isCompleted = matchCourse($courseKey, $completedCourses);
-            
-            $capstoneChoices[] = [
-                'subject' => $course['subject'],
-                'number_code' => $course['number_code'],
-                'title' => $course['title'],
-                'credits' => $course['credits'],
-                'completed' => $isCompleted
-            ];
-            
-            if ($isCompleted) {
-                $category['completed_credits'] += $completedCourses[$courseKey]['credits'];
-                $category['completed_count']++;
-                $usedCourses[$courseKey] = true;
-            }
-        }
-        
-        $category['choice_courses'][] = [
-            'label' => 'Choose one capstone course',
-            'courses' => $capstoneChoices
-        ];
-        
-        $result['categories'][] = $category;
     }
     
     if (!empty($requirements['free_electives'])) {
@@ -617,24 +617,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'completed_credits' => 0,
                 'required_credits' => $elective['min_credits']
             ];
-            
+
             $upperDivisionCredits = 0;
-            
+
             foreach ($completedCourses as $courseCode => $courseInfo) {
                 if (isset($usedCourses[$courseCode])) {
                     continue;
                 }
-                
+
                 $parts = explode(' ', $courseCode);
                 if (count($parts) >= 2) {
                     $subject = $parts[0];
                     $numberCode = $parts[1];
                     $courseLevel = intval($numberCode);
-                    
-                    if ($subject === 'CPS') {
+
+                    if ($subject === 'CPS' || $subject === 'MATH') {
                         continue;
                     }
-                    
+
                     $category['fixed_courses'][] = [
                         'subject' => $subject,
                         'number_code' => $numberCode,
@@ -642,16 +642,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'credits' => $courseInfo['credits'],
                         'completed' => true
                     ];
-                    
+
                     $category['completed_count']++;
                     $category['completed_credits'] += $courseInfo['credits'];
-                    
+
                     if ($courseLevel >= 3000) {
                         $upperDivisionCredits += $courseInfo['credits'];
                     }
                 }
             }
-            
+
             if ($category['completed_credits'] > 0) {
                 $category['upper_division_pct'] = round(($upperDivisionCredits / $category['completed_credits']) * 100);
                 $category['upper_division_credits'] = $upperDivisionCredits;
@@ -659,9 +659,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $category['upper_division_pct'] = 0;
                 $category['upper_division_credits'] = 0;
             }
-            
+
             $result['categories'][] = $category;
         }
+    }
+
+    // Handle MATH courses not in database
+    $mathCoursesNotInDb = [];
+    foreach ($completedCourses as $courseCode => $courseInfo) {
+        if (isset($usedCourses[$courseCode])) {
+            continue;
+        }
+
+        $parts = explode(' ', $courseCode);
+        if (count($parts) >= 2) {
+            $subject = $parts[0];
+            $numberCode = $parts[1];
+
+            if ($subject === 'MATH') {
+                // Check if this MATH course exists in database
+                $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM course WHERE subject = ? AND number_code = ?");
+                $stmt->execute([$subject, $numberCode]);
+                $exists = $stmt->fetch()['count'] > 0;
+
+                if (!$exists) {
+                    $mathCoursesNotInDb[] = [
+                        'subject' => $subject,
+                        'number_code' => $numberCode,
+                        'title' => $courseInfo['name'],
+                        'credits' => $courseInfo['credits'],
+                        'course_code' => $courseCode
+                    ];
+                }
+            }
+        }
+    }
+
+    if (!empty($mathCoursesNotInDb)) {
+        $category = [
+            'name' => 'Additional Required - Non-Program MATH Courses',
+            'type' => 'additional_required',
+            'fixed_courses' => [],
+            'choice_courses' => [],
+            'completed_count' => 0,
+            'total_count' => 0,
+            'completed_credits' => 0,
+            'required_credits' => 0 // No specific requirement, just show them
+        ];
+
+        foreach ($mathCoursesNotInDb as $course) {
+            $category['fixed_courses'][] = [
+                'subject' => $course['subject'],
+                'number_code' => $course['number_code'],
+                'title' => $course['title'],
+                'credits' => $course['credits'],
+                'completed' => true
+            ];
+
+            $category['completed_count']++;
+            $category['completed_credits'] += $course['credits'];
+            $usedCourses[$course['course_code']] = true;
+        }
+
+        $result['categories'][] = $category;
     }
     
     echo json_encode($result, JSON_PRETTY_PRINT);

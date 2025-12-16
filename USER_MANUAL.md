@@ -16,7 +16,7 @@
 
 The backend API is hosted at:
 ```
-https://obi.kean.edu/~toranm@kean.edu/kcc
+https://obi.kean.edu/~toranm@kean.edu
 ```
 
 **Server Requirements (if self-hosting):**

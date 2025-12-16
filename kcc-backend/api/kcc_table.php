@@ -1,8 +1,7 @@
-# Server-side script for rendering database tables/program data to the browser
-# Runs only on the server; queries MySQL and outputs structured views
-
-
 <?php
+
+// Server-side script for rendering database tables/program data to the browser
+// Runs only on the server; queries MySQL and outputs structured views
 /***********************
  * Minimal MySQL tester (full page)
  * Shows GE (Foundation/Humanities/Social Sci/Sci&Math),

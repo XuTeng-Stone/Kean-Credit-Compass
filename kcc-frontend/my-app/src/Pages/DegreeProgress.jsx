@@ -82,7 +82,7 @@ function DegreeProgress() {
           <h3 className="category-title">{cat.name}</h3>
           <div className="category-progress">
             <span className="progress-text">
-              {cat.completed_credits} / {cat.required_credits} credits
+              {parseInt(cat.completed_credits)} / {parseInt(cat.required_credits)} credits
             </span>
             <div className="progress-bar-small">
               <div className="progress-fill" style={{ width: `${progress}%` }}></div>
@@ -95,7 +95,7 @@ function DegreeProgress() {
             <div className="rule-summary">
               <h4 className="courses-subtitle">Requirements</h4>
               <div className="rule-details">
-                <p>Min Credits: <strong>{cat.rule.min_credits}</strong></p>
+                <p>Min Credits: <strong>{parseInt(cat.rule.min_credits)}</strong></p>
                 {cat.rule.min_level && (
                   <p>Min Level: <strong>{cat.rule.min_level}+</strong></p>
                 )}
@@ -108,10 +108,10 @@ function DegreeProgress() {
               </div>
               <div className="credits-status">
                 <p className="status-text">
-                  Earned: <strong>{cat.completed_credits}</strong> / {cat.required_credits}
+                  Earned: <strong>{parseInt(cat.completed_credits)}</strong> / {parseInt(cat.required_credits)}
                   {cat.completed_credits >= cat.required_credits ? 
                     <span className="status-badge completed"> Met</span> : 
-                    <span className="status-badge incomplete"> {cat.required_credits - cat.completed_credits} needed</span>
+                    <span className="status-badge incomplete"> {parseInt(cat.required_credits - cat.completed_credits)} needed</span>
                   }
                 </p>
               </div>
@@ -129,7 +129,7 @@ function DegreeProgress() {
                   <span className="course-title-label">{c.title}</span>
                 </div>
                 <div className="course-info-right">
-                  <span className="course-credits-label">{c.credits} cr</span>
+                  <span className="course-credits-label">{parseInt(c.credits)} cr</span>
                   <span className="status-badge completed">Completed</span>
                 </div>
               </div>
@@ -147,7 +147,7 @@ function DegreeProgress() {
                   <span className="course-title-label">{c.title}</span>
                 </div>
                 <div className="course-info-right">
-                  <span className="course-credits-label">{c.credits} cr</span>
+                  <span className="course-credits-label">{parseInt(c.credits)} cr</span>
                   <span className="status-badge completed">Completed</span>
                 </div>
               </div>
@@ -155,7 +155,8 @@ function DegreeProgress() {
           </div>
         )}
 
-        {!isRuleBased && (available.length > 0 || (cat.choice_courses && cat.choice_courses.length > 0)) && (
+        {/* Only show expand button if category is not completed */}
+        {progress < 100 && !isRuleBased && (available.length > 0 || (cat.choice_courses && cat.choice_courses.length > 0)) && (
           <div className="expand-section">
             <button className="expand-button" onClick={() => toggleCategory(idx)}>
               {expanded ? 'Hide' : `View Available (${available.length + (cat.choice_courses?.length || 0)})`}
@@ -163,7 +164,7 @@ function DegreeProgress() {
           </div>
         )}
 
-        {isRuleBased && cat.rule && (
+        {progress < 100 && isRuleBased && cat.rule && (
           <div className="expand-section">
             <button className="expand-button" onClick={() => toggleCategory(idx)}>
               {expanded ? 'Hide' : 'View Guide'}
@@ -171,7 +172,7 @@ function DegreeProgress() {
           </div>
         )}
 
-        {expanded && isRuleBased && cat.rule && (
+        {expanded && progress < 100 && isRuleBased && cat.rule && (
           <div className="available-courses rule-guide">
             <h4 className="courses-subtitle">Guide</h4>
             <div className="guide-content">
@@ -189,7 +190,7 @@ function DegreeProgress() {
               {cat.type === 'free_electives' && (
                 <div className="guide-section">
                   <p className="guide-text">
-                    Complete <strong>{cat.rule.min_credits}-{cat.rule.max_credits} credits</strong> from any department.
+                    Complete <strong>{parseInt(cat.rule.min_credits)}-{parseInt(cat.rule.max_credits)} credits</strong> from any department.
                   </p>
                   {cat.rule.upper_division_min_pct && (
                     <p className="guide-text">
@@ -203,7 +204,7 @@ function DegreeProgress() {
           </div>
         )}
 
-        {expanded && !isRuleBased && available.length > 0 && (
+        {expanded && progress < 100 && !isRuleBased && available.length > 0 && (
           <div className="courses-list available-courses">
             <h4 className="courses-subtitle">Available</h4>
             {available.map((c, i) => (
@@ -213,14 +214,14 @@ function DegreeProgress() {
                   <span className="course-title-label">{c.title}</span>
                 </div>
                 <div className="course-info-right">
-                  <span className="course-credits-label">{c.credits} cr</span>
+                  <span className="course-credits-label">{parseInt(c.credits)} cr</span>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {expanded && cat.choice_courses && cat.choice_courses.length > 0 && (
+        {expanded && progress < 100 && cat.choice_courses && cat.choice_courses.length > 0 && (
           <div className="choice-lists available-courses">
             {cat.choice_courses.map((group, i) => {
               const done = group.courses?.filter(c => c.completed) || [];
@@ -240,7 +241,7 @@ function DegreeProgress() {
                             <span className="course-title-label">{c.title}</span>
                           </div>
                           <div className="course-info-right">
-                            <span className="course-credits-label">{c.credits} cr</span>
+                            <span className="course-credits-label">{parseInt(c.credits)} cr</span>
                             <span className="status-badge completed">Done</span>
                           </div>
                         </div>
@@ -258,7 +259,7 @@ function DegreeProgress() {
                             <span className="course-title-label">{c.title}</span>
                           </div>
                           <div className="course-info-right">
-                            <span className="course-credits-label">{c.credits} cr</span>
+                            <span className="course-credits-label">{parseInt(c.credits)} cr</span>
                           </div>
                         </div>
                       ))}
@@ -319,11 +320,11 @@ function DegreeProgress() {
         <div className="stats-grid">
           <div className="stat-card">
             <h3 className="stat-label">Total Credits Completed</h3>
-            <p className="stat-value">{totalCredits}</p>
+            <p className="stat-value">{parseInt(totalCredits)}</p>
           </div>
           <div className="stat-card">
             <h3 className="stat-label">Credits Remaining</h3>
-            <p className="stat-value">{remaining}</p>
+            <p className="stat-value">{parseInt(remaining)}</p>
           </div>
           <div className="stat-card">
             <h3 className="stat-label">Completion Rate</h3>
@@ -392,7 +393,7 @@ function DegreeProgress() {
                       <span className="course-name">{course['Course Name']}</span>
                     </div>
                     <div className="course-details">
-                      <span className="course-credits">{course['Credits']}</span>
+                      <span className="course-credits">{parseInt(course['Credits'])}</span>
                       <span className="course-semester">{course['Semester']}</span>
                     </div>
                   </div>

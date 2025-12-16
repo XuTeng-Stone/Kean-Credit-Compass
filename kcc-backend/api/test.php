@@ -1,8 +1,8 @@
-# Server-side script for testing database connectivity
-# Runs only on the server; accepts program/courses payloads and validates against DB
-
-
 <?php
+
+// Server-side script for testing database connectivity
+//Runs only on the server; accepts program/courses payloads and validates against DB
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -137,28 +137,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (!empty($requirements['ge_foundation']['transition_choices'])) {
-        $transitionChoices = [];
+        $completedTransitions = [];
+        $availableTransitions = [];
+
         foreach ($requirements['ge_foundation']['transition_choices'] as $course) {
             $courseKey = getCourseKey($course['subject'], $course['number_code']);
             $isCompleted = matchCourse($courseKey, $completedCourses);
-            
-            $transitionChoices[] = [
-                'subject' => $course['subject'],
-                'number_code' => $course['number_code'],
-                'title' => $course['title'],
-                'credits' => $course['credits'],
-                'completed' => $isCompleted
-            ];
-            
+
             if ($isCompleted) {
+                $completedTransitions[] = [
+                    'subject' => $course['subject'],
+                    'number_code' => $course['number_code'],
+                    'title' => $course['title'],
+                    'credits' => $course['credits'],
+                    'completed' => true
+                ];
                 $category['completed_credits'] += $completedCourses[$courseKey]['credits'];
+                $category['completed_count']++;
                 $usedCourses[$courseKey] = true;
+            } else {
+                $availableTransitions[] = [
+                    'subject' => $course['subject'],
+                    'number_code' => $course['number_code'],
+                    'title' => $course['title'],
+                    'credits' => $course['credits'],
+                    'completed' => false
+                ];
             }
         }
-        $category['choice_courses'][] = [
-            'label' => 'Foundation Transition (choose one)',
-            'courses' => $transitionChoices
-        ];
+
+        // Completed courses are displayed in fixed_courses
+        foreach ($completedTransitions as $course) {
+            $category['fixed_courses'][] = $course;
+            $category['total_count']++;
+        }
+
+        // Available courses are displayed in choice_courses
+        if (!empty($availableTransitions)) {
+            $category['choice_courses'][] = [
+                'label' => 'Foundation Transition (choose one)',
+                'courses' => $availableTransitions
+            ];
+        }
     }
     
     $result['categories'][] = $category;
@@ -284,32 +304,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (!empty($requirements['ge_science_math']['lab_science_i'])) {
-        $labSciChoices = [];
+        $completedLabSci = [];
+        $availableLabSci = [];
+
         foreach ($requirements['ge_science_math']['lab_science_i'] as $course) {
             $courseKey = getCourseKey($course['subject'], $course['number_code']);
             $isCompleted = matchCourse($courseKey, $completedCourses);
-            
-            $labSciChoices[] = [
-                'subject' => $course['subject'],
-                'number_code' => $course['number_code'],
-                'title' => $course['title'],
-                'credits' => $course['credits'],
-                'completed' => $isCompleted
-            ];
-            
+
             if ($isCompleted) {
+                $completedLabSci[] = [
+                    'subject' => $course['subject'],
+                    'number_code' => $course['number_code'],
+                    'title' => $course['title'],
+                    'credits' => $course['credits'],
+                    'completed' => true
+                ];
                 $category['completed_credits'] += $completedCourses[$courseKey]['credits'];
+                $category['completed_count']++;
                 $usedCourses[$courseKey] = true;
+            } else {
+                $availableLabSci[] = [
+                    'subject' => $course['subject'],
+                    'number_code' => $course['number_code'],
+                    'title' => $course['title'],
+                    'credits' => $course['credits'],
+                    'completed' => false
+                ];
             }
         }
-        $category['choice_courses'][] = [
-            'label' => 'Lab Science I (choose one)',
-            'courses' => $labSciChoices
-        ];
+
+        // Completed courses are displayed in fixed_courses
+        foreach ($completedLabSci as $course) {
+            $category['fixed_courses'][] = $course;
+            $category['total_count']++;
+        }
+
+        // Available courses are displayed in choice_courses
+        if (!empty($availableLabSci)) {
+            $category['choice_courses'][] = [
+                'label' => 'Lab Science I (choose one)',
+                'courses' => $availableLabSci
+            ];
+        }
     }
-    
+
+
     $result['categories'][] = $category;
-    
+
+    // Handle high-level MATH courses not in database (>=2000 level) - add to CS Additional Required v1
+    $mathCoursesNotInDb = [];
+    foreach ($completedCourses as $courseCode => $courseInfo) {
+        if (isset($usedCourses[$courseCode])) {
+            continue;
+        }
+
+        $parts = explode(' ', $courseCode);
+        if (count($parts) >= 2) {
+            $subject = $parts[0];
+            $numberCode = $parts[1];
+            $courseLevel = intval($numberCode);
+
+            if ($subject === 'MATH' && $courseLevel >= 2000) {
+                // Check if this MATH course exists in database
+                $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM course WHERE subject = ? AND number_code = ?");
+                $stmt->execute([$subject, $numberCode]);
+                $exists = $stmt->fetch()['count'] > 0;
+
+                if (!$exists) {
+                    $mathCoursesNotInDb[] = [
+                        'subject' => $subject,
+                        'number_code' => $numberCode,
+                        'title' => $courseInfo['name'],
+                        'credits' => $courseInfo['credits'],
+                        'course_code' => $courseCode
+                    ];
+                }
+            }
+        }
+    }
+
     foreach ($requirements['additional_required']['sets'] as $set) {
         $setId = $set['add_set_id'];
         $category = [
@@ -359,24 +432,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'subjects' => []
                 ];
                 
+            $completedChoiceCourses = [];
+            $availableChoiceCourses = [];
+
             if (isset($requirements['additional_required']['choice_courses_by_id'][$choiceId])) {
                 foreach ($requirements['additional_required']['choice_courses_by_id'][$choiceId] as $course) {
                     $courseKey = getCourseKey($course['subject'], $course['number_code']);
                     $isCompleted = matchCourse($courseKey, $completedCourses);
-                    
-                    $choiceGroup['courses'][] = [
-                        'subject' => $course['subject'],
-                        'number_code' => $course['number_code'],
-                        'title' => $course['title'],
-                        'credits' => $course['credits'],
-                        'completed' => $isCompleted
-                    ];
-                    
+
                     if ($isCompleted) {
+                        $completedChoiceCourses[] = [
+                            'subject' => $course['subject'],
+                            'number_code' => $course['number_code'],
+                            'title' => $course['title'],
+                            'credits' => $course['credits'],
+                            'completed' => true
+                        ];
                         $category['completed_credits'] += $completedCourses[$courseKey]['credits'];
                         $usedCourses[$courseKey] = true;
+                    } else {
+                        $availableChoiceCourses[] = [
+                            'subject' => $course['subject'],
+                            'number_code' => $course['number_code'],
+                            'title' => $course['title'],
+                            'credits' => $course['credits'],
+                            'completed' => false
+                        ];
                     }
                 }
+            }
+
+            // Completed courses are displayed in fixed_courses
+            foreach ($completedChoiceCourses as $course) {
+                $category['fixed_courses'][] = $course;
+                $category['total_count']++;
+                $category['completed_count']++;
+            }
+
+            // Available courses are displayed in choice_courses
+            if (!empty($availableChoiceCourses)) {
+                $choiceGroup['courses'] = $availableChoiceCourses;
+                $category['choice_courses'][] = $choiceGroup;
+            } elseif (!empty($choiceGroup['subjects'])) {
+                // If only subjects exist without specific courses, still show choice_courses
+                $category['choice_courses'][] = $choiceGroup;
             }
                 
                 if (isset($requirements['additional_required']['choice_subjects_by_id'][$choiceId])) {
@@ -389,10 +488,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $category['choice_courses'][] = $choiceGroup;
             }
         }
-        
+
+        // Add MATH courses not in database (>=2000 level) to CS Additional Required v1
+        if ($set['name'] === 'CS Additional Required v1' && !empty($mathCoursesNotInDb)) {
+            foreach ($mathCoursesNotInDb as $course) {
+                $category['fixed_courses'][] = [
+                    'subject' => $course['subject'],
+                    'number_code' => $course['number_code'],
+                    'title' => $course['title'],
+                    'credits' => $course['credits'],
+                    'completed' => true
+                ];
+
+                $category['completed_count']++;
+                $category['completed_credits'] += $course['credits'];
+                $category['total_count']++;
+                $usedCourses[$course['course_code']] = true;
+            }
+        }
+
         $result['categories'][] = $category;
     }
-    
+
     foreach ($requirements['major_core']['sets'] as $set) {
         $setId = $set['core_set_id'];
         $category = [
@@ -481,24 +598,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'courses' => []
                 ];
                 
+            $completedChoiceCourses = [];
+            $availableChoiceCourses = [];
+
             if (isset($requirements['major_concentration']['choice_courses_by_id'][$choiceId])) {
                 foreach ($requirements['major_concentration']['choice_courses_by_id'][$choiceId] as $course) {
                     $courseKey = getCourseKey($course['subject'], $course['number_code']);
                     $isCompleted = matchCourse($courseKey, $completedCourses);
-                    
-                    $choiceGroup['courses'][] = [
-                        'subject' => $course['subject'],
-                        'number_code' => $course['number_code'],
-                        'title' => $course['title'],
-                        'credits' => $course['credits'],
-                        'completed' => $isCompleted
-                    ];
-                    
+
                     if ($isCompleted) {
+                        $completedChoiceCourses[] = [
+                            'subject' => $course['subject'],
+                            'number_code' => $course['number_code'],
+                            'title' => $course['title'],
+                            'credits' => $course['credits'],
+                            'completed' => true
+                        ];
                         $category['completed_credits'] += $completedCourses[$courseKey]['credits'];
                         $usedCourses[$courseKey] = true;
+                    } else {
+                        $availableChoiceCourses[] = [
+                            'subject' => $course['subject'],
+                            'number_code' => $course['number_code'],
+                            'title' => $course['title'],
+                            'credits' => $course['credits'],
+                            'completed' => false
+                        ];
                     }
                 }
+            }
+
+            // Completed courses are displayed in fixed_courses
+            foreach ($completedChoiceCourses as $course) {
+                $category['fixed_courses'][] = $course;
+                $category['total_count']++;
+                $category['completed_count']++;
+            }
+
+            // Available courses are displayed in choice_courses
+            if (!empty($availableChoiceCourses)) {
+                $choiceGroup['courses'] = $availableChoiceCourses;
+                $category['choice_courses'][] = $choiceGroup;
             }
                 
                 $category['choice_courses'][] = $choiceGroup;
@@ -525,25 +665,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $courseKey = getCourseKey($course['subject'], $course['number_code']);
             $isCompleted = matchCourse($courseKey, $completedCourses);
 
-            $capstoneChoices[] = [
-                'subject' => $course['subject'],
-                'number_code' => $course['number_code'],
-                'title' => $course['title'],
-                'credits' => $course['credits'],
-                'completed' => $isCompleted
-            ];
-
             if ($isCompleted) {
+                // Completed Capstone courses are displayed directly in fixed_courses
+                $category['fixed_courses'][] = [
+                    'subject' => $course['subject'],
+                    'number_code' => $course['number_code'],
+                    'title' => $course['title'],
+                    'credits' => $course['credits'],
+                    'completed' => true
+                ];
                 $category['completed_credits'] += $completedCourses[$courseKey]['credits'];
                 $category['completed_count']++;
+                $category['total_count']++;
                 $usedCourses[$courseKey] = true;
+            } else {
+                // Available Capstone courses are placed in choice_courses
+                $capstoneChoices[] = [
+                    'subject' => $course['subject'],
+                    'number_code' => $course['number_code'],
+                    'title' => $course['title'],
+                    'credits' => $course['credits'],
+                    'completed' => false
+                ];
             }
         }
 
-        $category['choice_courses'][] = [
-            'label' => 'Choose one capstone course',
-            'courses' => $capstoneChoices
-        ];
+        // Only add choice_courses when there are available Capstone courses
+        if (!empty($capstoneChoices)) {
+            $category['choice_courses'][] = [
+                'label' => 'Choose one capstone course',
+                'courses' => $capstoneChoices
+            ];
+        }
 
         $result['categories'][] = $category;
     }
@@ -631,7 +784,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $numberCode = $parts[1];
                     $courseLevel = intval($numberCode);
 
-                    if ($subject === 'CPS' || $subject === 'MATH') {
+                    if ($subject === 'CPS' || ($subject === 'MATH' && intval($numberCode) >= 2000)) {
                         continue;
                     }
 
@@ -664,66 +817,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Handle MATH courses not in database
-    $mathCoursesNotInDb = [];
-    foreach ($completedCourses as $courseCode => $courseInfo) {
-        if (isset($usedCourses[$courseCode])) {
-            continue;
-        }
-
-        $parts = explode(' ', $courseCode);
-        if (count($parts) >= 2) {
-            $subject = $parts[0];
-            $numberCode = $parts[1];
-
-            if ($subject === 'MATH') {
-                // Check if this MATH course exists in database
-                $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM course WHERE subject = ? AND number_code = ?");
-                $stmt->execute([$subject, $numberCode]);
-                $exists = $stmt->fetch()['count'] > 0;
-
-                if (!$exists) {
-                    $mathCoursesNotInDb[] = [
-                        'subject' => $subject,
-                        'number_code' => $numberCode,
-                        'title' => $courseInfo['name'],
-                        'credits' => $courseInfo['credits'],
-                        'course_code' => $courseCode
-                    ];
-                }
-            }
-        }
-    }
-
-    if (!empty($mathCoursesNotInDb)) {
-        $category = [
-            'name' => 'Additional Required - Non-Program MATH Courses',
-            'type' => 'additional_required',
-            'fixed_courses' => [],
-            'choice_courses' => [],
-            'completed_count' => 0,
-            'total_count' => 0,
-            'completed_credits' => 0,
-            'required_credits' => 0 // No specific requirement, just show them
-        ];
-
-        foreach ($mathCoursesNotInDb as $course) {
-            $category['fixed_courses'][] = [
-                'subject' => $course['subject'],
-                'number_code' => $course['number_code'],
-                'title' => $course['title'],
-                'credits' => $course['credits'],
-                'completed' => true
-            ];
-
-            $category['completed_count']++;
-            $category['completed_credits'] += $course['credits'];
-            $usedCourses[$course['course_code']] = true;
-        }
-
-        $result['categories'][] = $category;
-    }
-    
     echo json_encode($result, JSON_PRETTY_PRINT);
     exit;
 }
@@ -1229,4 +1322,7 @@ $programCode = isset($_GET['code']) ? trim($_GET['code']) : 'BS-CPS';
   </ul>
 </body>
 </html>
+
+
+
 
